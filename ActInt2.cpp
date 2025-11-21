@@ -12,12 +12,39 @@
 #include <sstream>
 using namespace std;
 
-
+struct Colonia{
+    string nombre;
+    int x;
+    int y; 
+    bool central;
+    Colonia(string nombre, int x, int y, bool central){
+		this->nombre = nombre;
+		this->x = x;
+        this->y = y;
+        this->central= central;
+	}
+};
 
 int main(){
 
-    int n,m ,q, k;
+    int n,m ,q, k; //n = cantidad de colonias, m = número de conexiones entre colonias, k = las conexiones con el nuevo cableado, q = futuras nuevas colonias que se desean conectar.
     cin >> n >> m >> q >> k;
+    vector<Colonia> colonias(n);
+    for(int i=0; i<n;i++){
+        string nom;
+        int x, y;
+        bool c;
+        cin>>nom>>x>>y>>c;
+        colonias[i].nombre=nom;
+        colonias[i].x=x;
+        colonias[i].y=y;
+        colonias[i].central=c;
+    }
+    // for(int i=0; i<m;i++){
+        
+
+
+    // }
 
 
 
