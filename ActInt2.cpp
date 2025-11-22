@@ -78,6 +78,7 @@ int main(){
         index[nom]=i;
     }
 
+
     Graph G(n);
     int matAdj[MAX][MAX];
     initMatAdj(matAdj);
@@ -95,9 +96,8 @@ int main(){
         string nombre;
         int x,y;
         cin >> nombre >> x>> y;
-        newColonias.push_back(Colonia(nombre,x,y,false)); // no habia necesidad de declarar una variable para el bool de central ya que no es algo que nos sea util jajaja
+        newColonias[i] =(Colonia(nombre,x,y,false)); // no habia necesidad de declarar una variable para el bool de central ya que no es algo que nos sea util jajaja
     }
 
-    
     return 0;
 }
