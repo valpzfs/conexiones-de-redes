@@ -179,7 +179,7 @@ void printPath(int start, int end, int camino[MAX][MAX], unordered_map<int,strin
 }
 
 // Matriz de los caminos necesaria para que Floyd tenga un record de las rutas.
-void caminosMat (pair<int,bool> matAdj[MAX][MAX], int v, int camino[MAX][MAX]){
+void caminosMat (int v, int camino[MAX][MAX]){
     for(int i = 0; i < v; i++) {
         for(int j = 0; j < v; j++) {
             camino[i][j] = -1; 
@@ -190,7 +190,7 @@ void caminosMat (pair<int,bool> matAdj[MAX][MAX], int v, int camino[MAX][MAX]){
 // Floyd modificado para guardar los caminos
 void FloydWarshall(pair<int,bool> matAdj[MAX][MAX], int v, int camino[MAX][MAX]){
     // se le llama a la matriz de caminos que va a ir guardando los nodos intermedios que representan el camino más corto
-    caminosMat(matAdj, v, camino);
+    caminosMat(v, camino);
 
     for (int k = 0; k < v; k++) {
         for(int i = 0; i < v; i++) {
@@ -221,6 +221,46 @@ void RutasCentrales(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> &colonias, 
     }
 }
 
+//Complejidad O(n)
+void branchNBound(pair<int, bool> matAdj[MAX][MAX], const vector<int>& nocentrales, int currPos, int count, int cost, int& minCost, vector<bool>& visited) {
+    if (count == nocentrales.size()){
+        if (matAdj[nocentrales[currPos]][nocentrales[0]].first != MAX_INT)
+            minCost = min(minCost, cost + matAdj[nocentrales[currPos]][nocentrales[0]].first);
+        return;
+    }
+
+    for (int i = 0; i < nocentrales.size(); i++) {
+        if (!visited[i]) {
+            int temp = matAdj[nocentrales[currPos]][nocentrales[i]].first;
+            if (temp != MAX_INT && cost + temp < minCost) {
+                visited[i] = true;
+                branchNBound(matAdj, nocentrales, i, count + 1, cost + temp, minCost, visited);
+                visited[i] = false;
+            }
+        }
+    }
+}
+
+//Complejidad O(n)
+int travelTime(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> colonias, int n, int& minCost) {
+
+    vector<int> nocentrales;
+    for (int i = 0; i < n; i++) {
+        if (!colonias[i].central) {
+            nocentrales.push_back(i);
+        }
+    }
+
+    if (nocentrales.empty()) return 0;
+    vector<bool> visited(nocentrales.size(), false);
+    visited[0] = true;
+
+    minCost = MAX_INT;
+
+    branchNBound(matAdj, nocentrales,0,1,0,minCost,visited);
+    return (minCost == MAX_INT ? -1 : minCost);
+}
+
 int main(){
     int n,m,k,q; //n = cantidad de colonias, m = número de conexiones entre colonias, k = las conexiones con el nuevo cableado, q = futuras nuevas colonias que se desean conectar.
     cin >> n >> m >> k >> q;
@@ -241,7 +281,6 @@ int main(){
         index1[nom]=i;
         index2[i]=nom;
     }
-    
 
     //conexiones entre colonias y su costo
     Graph G(n);
@@ -273,10 +312,15 @@ int main(){
     cout<<"-------------------\n1 - Cableado óptimo de nueva conexión."<<endl;
     kruskalMST(G,matAdj, index2);
     cout<<"-------------------\n2 - La ruta óptima."<<endl;
+    FloydWarshall(matAdj, n, camino);
+    int var =0;
+    travelTime(matAdj,colonias,5,var);
+    cout<<var<<endl;
     //Ruta optima para ir entre centrales
     cout<<"-------------------\n3 - Caminos más cortos entre centrales."<<endl;
-    FloydWarshall(matAdj, n, camino);
+    
     RutasCentrales(matAdj, colonias, index2, camino);
+    
     cout<<"-------------------\n4 - Conexión de nuevas colonias."<<endl;
     vector<string> cercanas(2);
     bruteForce(colonias, newColonias,0, colonias.size(),cercanas);
