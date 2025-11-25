@@ -162,12 +162,73 @@ void leeDatos(pair<int,bool> matAdj[MAX][MAX], Graph &G, int edges,unordered_map
     }
 }
 
+// ---- FLOYD WARSHALL (Punto 3)-----
+void printPath(int start, int end, int camino[MAX][MAX], unordered_map<int,string> index) {
+    vector<int> pasos;
+    int inicioInicial = start;
+    int finFinal = end;
+    while (camino[inicioInicial][finFinal] != -1) {
+        int intermedio = camino[inicioInicial][finFinal];
+        pasos.push_back(intermedio);
+        finFinal = intermedio;
+    }
+
+    for (int i=0;i<pasos.size();i++) {
+        int nodo = pasos[i];
+        cout << " - " << index[nodo];
+    }
+}
+
+// Matriz de los caminos necesaria para que Floyd tenga un record de las rutas.
+void caminosMat (pair<int,bool> matAdj[MAX][MAX], int v, int camino[MAX][MAX]){
+    for(int i = 0; i < v; i++) {
+        for(int j = 0; j < v; j++) {
+            camino[i][j] = -1; 
+        }
+    }
+}
+
+// Floyd modificado para guardar los caminos
+void FloydWarshall(pair<int,bool> matAdj[MAX][MAX], int v, int camino[MAX][MAX]){
+    // se le llama a la matriz de caminos que va a ir guardando los nodos intermedios que representan el camino más corto
+    caminosMat(matAdj, v, camino);
+
+    for (int k = 0; k < v; k++) {
+        for(int i = 0; i < v; i++) {
+            for(int j = 0; j < v; j++) {
+                if(matAdj[i][k].first != MAX_INT && matAdj[k][j].first != MAX_INT && matAdj[i][j].first > matAdj[i][k].first + matAdj[k][j].first){
+                    matAdj[i][j].first = matAdj[i][k].first + matAdj[k][j].first;
+                    camino[i][j] = k;
+                }
+            }
+        }
+    }
+}
+
+void RutasCentrales(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> &colonias, unordered_map<int, string> index2, int camino[MAX][MAX]) {
+    vector<int> centrales;
+    for(int i = 0; i < colonias.size(); i++) {
+        if(colonias[i].central == true) {
+            centrales.push_back(i);
+        }
+    }
+    for(int i = 0; i < centrales.size(); i++) {
+        for(int j = i + 1; j < centrales.size(); j++) {
+            cout << index2[centrales[i]];
+            printPath(centrales[i], centrales[j], camino, index2);
+            cout << " - " << index2[centrales[j]];
+            cout << " (" << matAdj[centrales[i]][centrales[j]].first << ")" << endl;
+        }
+    }
+}
+
 int main(){
     int n,m,k,q; //n = cantidad de colonias, m = número de conexiones entre colonias, k = las conexiones con el nuevo cableado, q = futuras nuevas colonias que se desean conectar.
     cin >> n >> m >> k >> q;
     vector<Colonia> colonias(n);
     unordered_map<string, int> index1;
     unordered_map<int, string> index2;
+    int camino[MAX][MAX];
     // Nombre colonia, coordenadas x y, bool central
     for(int i=0; i<n;i++){
         string nom;
@@ -188,7 +249,6 @@ int main(){
     initMatAdj(matAdj);
     leeDatos(matAdj, G, m, index1);
     
-    
     //conexiones con cableado nuevo 
     for(int i=0;i<k;i++){
         string col1,col2;
@@ -207,11 +267,16 @@ int main(){
         index2[colonias.size()+i]=nombre;
     }
 
+    // FORMATO DE SALIDA
+
     //Cableo optimo con kruskal
     cout<<"-------------------\n1 - Cableado óptimo de nueva conexión."<<endl;
     kruskalMST(G,matAdj, index2);
     cout<<"-------------------\n2 - La ruta óptima."<<endl;
+    //Ruta optima para ir entre centrales
     cout<<"-------------------\n3 - Caminos más cortos entre centrales."<<endl;
+    FloydWarshall(matAdj, n, camino);
+    RutasCentrales(matAdj, colonias, index2, camino);
     cout<<"-------------------\n4 - Conexión de nuevas colonias."<<endl;
     vector<string> cercanas(2);
     bruteForce(colonias, newColonias,0, colonias.size(),cercanas);
