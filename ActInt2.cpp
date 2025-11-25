@@ -173,9 +173,8 @@ void printPath(int start, int end, int camino[MAX][MAX], unordered_map<int,strin
         finFinal = intermedio;
     }
 
-    for (int i=0;i<pasos.size();i++) {
-        int nodo = pasos[i];
-        cout << " - " << index[nodo];
+    for (int i=pasos.size()-1;i>=0;i--) {
+        cout << index[pasos[i]]<< " - ";
     }
 }
 
@@ -214,9 +213,9 @@ void RutasCentrales(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> &colonias, 
     }
     for(int i = 0; i < centrales.size(); i++) {
         for(int j = i + 1; j < centrales.size(); j++) {
-            cout << index2[centrales[i]];
+            cout << index2[centrales[i]]<<" - ";
             printPath(centrales[i], centrales[j], camino, index2);
-            cout << " - " << index2[centrales[j]];
+            cout << index2[centrales[j]]; //imprime ultima
             cout << " (" << matAdj[centrales[i]][centrales[j]].first << ")" << endl;
         }
     }
@@ -242,6 +241,7 @@ int main(){
         index1[nom]=i;
         index2[i]=nom;
     }
+    
 
     //conexiones entre colonias y su costo
     Graph G(n);
