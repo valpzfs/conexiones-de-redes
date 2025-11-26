@@ -123,7 +123,8 @@ double dist(Colonia &p1, Colonia &p2){
     return sqrt(((p1.x-p2.x)*(p1.x-p2.x))+((p1.y-p2.y)*(p1.y-p2.y)));
 }
 
-double bruteForce(vector<Colonia> conectadas, vector<Colonia> desconectadas,  int ini, int fin, vector<string> &cercanas ){
+double bruteForce(vector<Colonia> conectadas, vector<Colonia> desconectadas,  int ini, int fin, vector<string> &cercanas, string& outputText){
+    outputText += "-------------------\n4 - Conexión de nuevas colonias.\n";
     double min_aux;
     for (int i=0;i<desconectadas.size();i++){
         min_aux = MAX_INT;
@@ -134,8 +135,10 @@ double bruteForce(vector<Colonia> conectadas, vector<Colonia> desconectadas,  in
                 cercanas[1]=conectadas[j].nombre;
             }
         }
-        cout<<cercanas[0]<<" debe conectarse con "<<cercanas[1]<<endl;
+        outputText += cercanas[0] + " debe conectarse con " + cercanas[1]+ "\n";
+        
     }
+    outputText += "-------------------";
     return min_aux;
 }
 
@@ -165,7 +168,7 @@ void leeDatos(pair<int,bool> matAdj[MAX][MAX], Graph &G, int edges,unordered_map
 }
 
 // ---- FLOYD WARSHALL (Punto 3)-----
-void printPath(int start, int end, int camino[MAX][MAX], unordered_map<int,string> index) {
+void printPath(int start, int end, int camino[MAX][MAX], unordered_map<int,string> index, string& outputText) {
     vector<int> pasos;
     while (camino[start][end] != -1) {
         int intermedio = camino[start][end];
@@ -174,7 +177,7 @@ void printPath(int start, int end, int camino[MAX][MAX], unordered_map<int,strin
     }
 
     for (int i=pasos.size()-1;i>=0;i--) {
-        cout << index[pasos[i]]<< " - ";
+        outputText += index[pasos[i]] + " - ";
     }
 }
 
@@ -188,7 +191,7 @@ void caminosMat (int v, int camino[MAX][MAX]){
 }
 
 // Floyd modificado para guardar los caminos
-void FloydWarshall(pair<int,bool> matAdj[MAX][MAX], int v, int camino[MAX][MAX]){
+void FloydWarshall(pair<int,bool> matAdj[MAX][MAX], int v, int camino[MAX][MAX], string& outputText){
     // se le llama a la matriz de caminos que va a ir guardando los nodos intermedios que representan el camino más corto
     caminosMat(v, camino);
 
@@ -204,7 +207,8 @@ void FloydWarshall(pair<int,bool> matAdj[MAX][MAX], int v, int camino[MAX][MAX])
     }
 }
 
-void RutasCentrales(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> &colonias, unordered_map<int, string> index2, int camino[MAX][MAX]) {
+void RutasCentrales(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> &colonias, unordered_map<int, string> index2, int camino[MAX][MAX], string& outputText) {
+    outputText += "-------------------\n3 - Caminos más cortos entre centrales.\n"; 
     vector<int> centrales;
     for(int i=0; i<colonias.size(); i++) {
         if(colonias[i].central == true) {
@@ -213,32 +217,32 @@ void RutasCentrales(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> &colonias, 
     }
     for(int i=0; i<centrales.size(); i++) {
         for(int j = i + 1; j < centrales.size(); j++) {
-            cout << index2[centrales[i]]<<" - ";
-            printPath(centrales[i], centrales[j], camino, index2);
-            cout << index2[centrales[j]]; //imprime ultima
-            cout << " (" << matAdj[centrales[i]][centrales[j]].first << ")" << endl;
+            outputText += index2[centrales[i]]+" - ";
+            printPath(centrales[i], centrales[j], camino, index2, outputText);
+            outputText += index2[centrales[j]]; //imprime ultima
+            outputText += " (" + to_string(matAdj[centrales[i]][centrales[j]].first) + ")" + "\n";
         }
     }
 }
 
 //print de la mejor ruta del TSP con los detalles del camino 
-void printTSP(vector<int>& mejorRuta, vector<int>& nocentrales, pair<int,bool> matAdj[MAX][MAX], unordered_map<int,string> index2, int camino[MAX][MAX], int minCost) {
+void printTSP(vector<int>& mejorRuta, vector<int>& nocentrales, pair<int,bool> matAdj[MAX][MAX], unordered_map<int,string> index2, int camino[MAX][MAX], int minCost, string& outputText) {
     // Pprimera colonia no central 
-    cout << index2[nocentrales[0]];
+    outputText += index2[nocentrales[0]];
     //recorrer la mejor ruta
     for (int i=1; i<mejorRuta.size(); i++) {
-        cout << " - ";
+        outputText += " - ";
         //print de los nodos intermedios del segmento
-        printPath(nocentrales[mejorRuta[i-1]], nocentrales[mejorRuta[i]], camino, index2);
+        printPath(nocentrales[mejorRuta[i-1]], nocentrales[mejorRuta[i]], camino, index2, outputText);
        // print colonia destino del segemnto
-        cout << index2[nocentrales[mejorRuta[i]]];
+        outputText += index2[nocentrales[mejorRuta[i]]];
     }
     //regreso a la colonia inicial
-    cout << " - ";
-    printPath(nocentrales[mejorRuta.back()], nocentrales[0], camino, index2);
-    cout << index2[nocentrales[0]];
+    outputText += " - ";
+    printPath(nocentrales[mejorRuta.back()], nocentrales[0], camino, index2, outputText);
+    outputText += index2[nocentrales[0]];
    
-    cout << "\nLa Ruta Óptima tiene un costo total de: " << minCost << endl;
+    outputText += "\nLa Ruta Óptima tiene un costo total de: " + to_string(minCost) + "\n";
 }
 
 //Complejidad O(n)
@@ -274,7 +278,8 @@ void branchNBound(pair<int, bool> matAdj[MAX][MAX], const vector<int>& nocentral
 }
 
 //Complejidad O(n)
-int travelTime(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> colonias, int n, unordered_map<int,string> index2, int camino[MAX][MAX]) {
+int travelTime(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> colonias, int n, unordered_map<int,string> index2, int camino[MAX][MAX], string& outputText) {
+    outputText += "-------------------\n2 - La ruta óptima.\n";
     vector<int> nocentrales;
     // hice estos nuevos vectores para ir guardando las rutas
     vector<int> rutaactual;
@@ -299,7 +304,7 @@ int travelTime(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> colonias, int n,
         return -1; // No hay ruta posible
     }
     //print de la ruta optima
-    printTSP(rutaoptima, nocentrales, matAdj, index2, camino, minCost);
+    printTSP(rutaoptima, nocentrales, matAdj, index2, camino, minCost, outputText);
     return minCost;
 
 }
@@ -353,22 +358,19 @@ int main(){
     // FORMATO DE SALIDA
 
     //Cableo optimo con kruskal
-    cout<<"-------------------\n1 - Cableado óptimo de nueva conexión."<<endl;
     kruskalMST(G,matAdj, index2,outputText);
 
     //TSP con branch and bound
-    cout<<"-------------------\n2 - La ruta óptima."<<endl;
-    FloydWarshall(matAdj, n, camino);
-    travelTime(matAdj,colonias,n,index2,camino);
+    FloydWarshall(matAdj, n, camino, outputText);
+    travelTime(matAdj,colonias,n,index2,camino,outputText);
     
     //Ruta optima para ir entre centrales
-    cout<<"-------------------\n3 - Caminos más cortos entre centrales."<<endl;
-    RutasCentrales(matAdj, colonias, index2, camino);
+    RutasCentrales(matAdj, colonias, index2, camino, outputText);
 
-    cout<<"-------------------\n4 - Conexión de nuevas colonias."<<endl;
+  //  cout<<"-------------------\n4 - Conexión de nuevas colonias."<<endl;
     vector<string> cercanas(2);
-    bruteForce(colonias, newColonias,0, colonias.size(),cercanas);
-    cout<<"-------------------"<<endl;
+    bruteForce(colonias, newColonias,0, colonias.size(),cercanas, outputText);
+  //  cout<<"-------------------"<<endl;
 
     ofstream outputFile("checking2.txt");
     if (outputFile.is_open()) {
