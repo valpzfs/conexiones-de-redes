@@ -119,6 +119,7 @@ void kruskalMST(Graph G, pair<int, bool> matAdj[MAX][MAX], unordered_map<int, st
 }
 
 
+// ---- DISTANCIA EUCLEDIANA ---
 double dist(Colonia &p1, Colonia &p2){
     return sqrt(((p1.x-p2.x)*(p1.x-p2.x))+((p1.y-p2.y)*(p1.y-p2.y)));
 }
@@ -167,7 +168,7 @@ void leeDatos(pair<int,bool> matAdj[MAX][MAX], Graph &G, int edges,unordered_map
     }
 }
 
-// ---- FLOYD WARSHALL (Punto 3)-----
+// ---- FLOYD WARSHALL -----
 void printPath(int start, int end, int camino[MAX][MAX], unordered_map<int,string> index, string& outputText) {
     vector<int> pasos;
     while (camino[start][end] != -1) {
@@ -181,7 +182,7 @@ void printPath(int start, int end, int camino[MAX][MAX], unordered_map<int,strin
     }
 }
 
-// Matriz de los caminos necesaria para que Floyd tenga un record de las rutas.
+// mtriz de los caminos para que Floyd tenga como un record de las rutas.
 void caminosMat (int v, int camino[MAX][MAX]){
     for(int i= 0; i< v; i++) {
         for(int j= 0; j<v; j++) {
@@ -192,7 +193,7 @@ void caminosMat (int v, int camino[MAX][MAX]){
 
 // Floyd modificado para guardar los caminos
 void FloydWarshall(pair<int,bool> matAdj[MAX][MAX], int v, int camino[MAX][MAX], string& outputText){
-    // se le llama a la matriz de caminos que va a ir guardando los nodos intermedios que representan el camino más corto
+    // se le llama a la matriz de caminos que va a ir guardando los nodos intermedios que representan el camino mas corto
     caminosMat(v, camino);
 
     for (int k=0; k<v; k++) {
@@ -225,16 +226,16 @@ void RutasCentrales(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> &colonias, 
     }
 }
 
+
+// ---- TRAVELLING SALESMAN PROBLEM  -----
 //print de la mejor ruta del TSP con los detalles del camino 
 void printTSP(vector<int>& mejorRuta, vector<int>& nocentrales, pair<int,bool> matAdj[MAX][MAX], unordered_map<int,string> index2, int camino[MAX][MAX], int minCost, string& outputText) {
-    // Pprimera colonia no central 
     outputText += index2[nocentrales[0]];
     //recorrer la mejor ruta
     for (int i=1; i<mejorRuta.size(); i++) {
         outputText += " - ";
         //print de los nodos intermedios del segmento
         printPath(nocentrales[mejorRuta[i-1]], nocentrales[mejorRuta[i]], camino, index2, outputText);
-       // print colonia destino del segemnto
         outputText += index2[nocentrales[mejorRuta[i]]];
     }
     //regreso a la colonia inicial
@@ -266,7 +267,7 @@ void branchNBound(pair<int, bool> matAdj[MAX][MAX], const vector<int>& nocentral
             int temp = matAdj[nocentrales[currPos]][nocentrales[i]].first;
             if (temp != MAX_INT && cost + temp < minCost) {
                 visited[i] = true;
-                // se marca a uan colonia como visitada y se agega a la ruta act.
+                //se marca a uan colonia como visitada y se agega a la ruta act.
                 rutaactual.push_back(i);
                 branchNBound(matAdj, nocentrales, i, count + 1, cost + temp, minCost, visited, rutaactual, rutaoptima);
                 // backtrack para probar otras rutas
@@ -356,7 +357,6 @@ int main(){
     }
 
     // FORMATO DE SALIDA
-
     //Cableo optimo con kruskal
     kruskalMST(G,matAdj, index2,outputText);
 
@@ -367,10 +367,9 @@ int main(){
     //Ruta optima para ir entre centrales
     RutasCentrales(matAdj, colonias, index2, camino, outputText);
 
-  //  cout<<"-------------------\n4 - Conexión de nuevas colonias."<<endl;
+    // distancia entre nuevas conexiones
     vector<string> cercanas(2);
     bruteForce(colonias, newColonias,0, colonias.size(),cercanas, outputText);
-  //  cout<<"-------------------"<<endl;
 
     ofstream outputFile("checking2.txt");
     if (outputFile.is_open()) {
