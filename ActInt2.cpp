@@ -11,6 +11,7 @@
 #include <fstream>
 #include <unordered_map>
 #include <cmath>
+#include <string>
 #define Edge pair<int,int> // a donde llego y su costo
 #define Graph vector<vector<Edge>>
 #define MAX 30
@@ -91,7 +92,8 @@ vector<pair<int, pair<int, int>>> prepData4Kruskal(Graph G, pair<int, bool> matA
     return edges;
 }
 
-void kruskalMST(Graph G, pair<int, bool> matAdj[MAX][MAX], unordered_map<int, string> index){
+void kruskalMST(Graph G, pair<int, bool> matAdj[MAX][MAX], unordered_map<int, string> index, string& outputText){
+    outputText += "-------------------\n1 - Cableado óptimo de nueva conexión.\n";
     vector<pair<int, pair<int, int>>> edges=prepData4Kruskal(G, matAdj);
     vector<pair<int, int>> selectedEdges;
     int costMSTKruskal;
@@ -110,10 +112,10 @@ void kruskalMST(Graph G, pair<int, bool> matAdj[MAX][MAX], unordered_map<int, st
     //Print de los caminos seleccionados a ponerles cableado nuevo
     for (auto it:selectedEdges){
         if(!matAdj[it.first][it.second].second){
-            cout<< index[it.first]<<" - "<< index[it.second]<<" "<<matAdj[it.first][it.second].first<<endl;
+            outputText += index[it.first]+ " - " + index[it.second] + " " + to_string(matAdj[it.first][it.second].first) + "\n";
         }
     }
-    cout<<"Costo total: "<<costMSTKruskal<<endl;
+    outputText += "Costo total: " + to_string(costMSTKruskal) + "\n";
 }
 
 
@@ -306,10 +308,11 @@ int main(){
     int n,m,k,q; //n = cantidad de colonias, m = número de conexiones entre colonias, k = las conexiones con el nuevo cableado, q = futuras nuevas colonias que se desean conectar.
     cin >> n >> m >> k >> q;
     vector<Colonia> colonias(n);
-    unordered_map<string, int> index1;
-    unordered_map<int, string> index2;
+    unordered_map<string,int> index1;
+    unordered_map<int,string> index2;
     int camino[MAX][MAX];
-    // Nombre colonia, coordenadas x y, bool central
+    string outputText = "";
+    //Nombre colonia, coordenadas x y, bool central
     for(int i=0; i<n;i++){
         string nom;
         int x, y;
@@ -351,7 +354,7 @@ int main(){
 
     //Cableo optimo con kruskal
     cout<<"-------------------\n1 - Cableado óptimo de nueva conexión."<<endl;
-    kruskalMST(G,matAdj, index2);
+    kruskalMST(G,matAdj, index2,outputText);
 
     //TSP con branch and bound
     cout<<"-------------------\n2 - La ruta óptima."<<endl;
@@ -367,6 +370,16 @@ int main(){
     bruteForce(colonias, newColonias,0, colonias.size(),cercanas);
     cout<<"-------------------"<<endl;
 
+    ofstream outputFile("checking2.txt");
+    if (outputFile.is_open()) {
+        outputFile << outputText;
+        cout<<outputText<<endl;
+
+        outputFile.close();
+        cout << "Se escribio en el achivo de output";
+    } else {
+        cout<< "No se pudo escribir en el achivo de output";
+    }
 
 
     return 0;
