@@ -165,12 +165,10 @@ void leeDatos(pair<int,bool> matAdj[MAX][MAX], Graph &G, int edges,unordered_map
 // ---- FLOYD WARSHALL (Punto 3)-----
 void printPath(int start, int end, int camino[MAX][MAX], unordered_map<int,string> index) {
     vector<int> pasos;
-    int inicioInicial = start;
-    int finFinal = end;
-    while (camino[inicioInicial][finFinal] != -1) {
-        int intermedio = camino[inicioInicial][finFinal];
+    while (camino[start][end] != -1) {
+        int intermedio = camino[start][end];
         pasos.push_back(intermedio);
-        finFinal = intermedio;
+        end = intermedio;
     }
 
     for (int i=pasos.size()-1;i>=0;i--) {
@@ -368,5 +366,8 @@ int main(){
     vector<string> cercanas(2);
     bruteForce(colonias, newColonias,0, colonias.size(),cercanas);
     cout<<"-------------------"<<endl;
+
+
+
     return 0;
 }
