@@ -113,7 +113,6 @@ void kruskalMST(Graph G, pair<int, bool> matAdj[MAX][MAX], unordered_map<int, st
 			ds.merge(it.second.first, it.second.second);
 		}
 	}
-    
     //Print de los caminos seleccionados a ponerles cableado nuevo
     for (auto it:selectedEdges){
         if(!matAdj[it.first][it.second].second){
@@ -229,6 +228,12 @@ void RutasCentrales(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> &colonias, 
             centrales.push_back(i);
         }
     }
+
+    if(centrales.size()<2){
+        outputText += "No hay suficientes colonias centrales para hacer caminos\n";
+        return;
+    }
+
     for(int i=0; i<centrales.size(); i++) {
         for(int j = i + 1; j < centrales.size(); j++) {
             outputText += index2[centrales[i]]+" - ";
@@ -304,8 +309,10 @@ int travelTime(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> colonias, int n,
             nocentrales.push_back(i);
         }
     }
+    
 
-    if (nocentrales.empty()) {
+    if (nocentrales.size()<2) {
+        outputText += "No hay suficientes colonias no centrales para hacer una ruta\n";
         return 0;
     }
     vector<bool> visited(nocentrales.size(), false);
@@ -316,12 +323,12 @@ int travelTime(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> colonias, int n,
 
     branchNBound(matAdj, nocentrales,0,1,0,minCost,visited, rutaactual, rutaoptima);
     if (minCost == MAX_INT) {
+        outputText += "No hay ruta óptima posible\n";
         return -1; // No hay ruta posible
     }
     //print de la ruta optima
     printTSP(rutaoptima, nocentrales, matAdj, index2, camino, minCost, outputText);
     return minCost;
-
 }
 
 int main(){
