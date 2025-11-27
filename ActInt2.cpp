@@ -51,12 +51,14 @@ struct DisjointSets{ //Disjoint Sets (Union-Find)
 		}
 	}
 	// Para encontrar el parent de 'u'
-	int find(int u){
+    //Complejidad O(log n)
+	int find(int u){ 
 		if (u != parent[u]){
 			parent[u] = find(parent[u]);
 		}
 		return parent[u];
 	}
+    //Complejidad O(log n)
 	void merge(int x, int y){
 		x = find(x);
 		y = find(y);
@@ -72,6 +74,8 @@ struct DisjointSets{ //Disjoint Sets (Union-Find)
 	}
 };
 
+
+//Complejidad O(log n)
 vector<pair<int, pair<int, int>>> prepData4Kruskal(Graph G, pair<int, bool> matAdj[MAX][MAX]){
     vector<pair<int, pair<int, int>>> edges;
     for(int i=0; i<G.size(); i++){
@@ -92,6 +96,7 @@ vector<pair<int, pair<int, int>>> prepData4Kruskal(Graph G, pair<int, bool> matA
     return edges;
 }
 
+//Complejidad O(n)
 void kruskalMST(Graph G, pair<int, bool> matAdj[MAX][MAX], unordered_map<int, string> index, string& outputText){
     outputText += "-------------------\n1 - Cableado óptimo de nueva conexión.\n";
     vector<pair<int, pair<int, int>>> edges=prepData4Kruskal(G, matAdj);
@@ -119,11 +124,13 @@ void kruskalMST(Graph G, pair<int, bool> matAdj[MAX][MAX], unordered_map<int, st
 }
 
 
-// ---- DISTANCIA EUCLEDIANA ---
+// ---- DISTANCIA EUCLIDIANA ---
+//Complejidad O(1)
 double dist(Colonia &p1, Colonia &p2){
     return sqrt(((p1.x-p2.x)*(p1.x-p2.x))+((p1.y-p2.y)*(p1.y-p2.y)));
 }
 
+//Complejidad O(n * m)
 double bruteForce(vector<Colonia> conectadas, vector<Colonia> desconectadas,  int ini, int fin, vector<string> &cercanas, string& outputText){
     outputText += "-------------------\n4 - Conexión de nuevas colonias.\n";
     double min_aux;
@@ -143,7 +150,7 @@ double bruteForce(vector<Colonia> conectadas, vector<Colonia> desconectadas,  in
     return min_aux;
 }
 
-
+//Complejidad O(n^2)
 void initMatAdj(pair<int, bool> matAdj[MAX][MAX]){
     for(int i =0; i<MAX;i++){
         matAdj [i][i]=pair(0,0);
@@ -152,6 +159,8 @@ void initMatAdj(pair<int, bool> matAdj[MAX][MAX]){
         }
     }
 }
+
+//Complejidad O(n)
 void leeDatos(pair<int,bool> matAdj[MAX][MAX], Graph &G, int edges,unordered_map<string, int> index){
     string col1, col2;
     int c1,c2;
@@ -169,6 +178,7 @@ void leeDatos(pair<int,bool> matAdj[MAX][MAX], Graph &G, int edges,unordered_map
 }
 
 // ---- FLOYD WARSHALL -----
+//Complejidad O(n) 
 void printPath(int start, int end, int camino[MAX][MAX], unordered_map<int,string> index, string& outputText) {
     vector<int> pasos;
     while (camino[start][end] != -1) {
@@ -182,7 +192,8 @@ void printPath(int start, int end, int camino[MAX][MAX], unordered_map<int,strin
     }
 }
 
-// mtriz de los caminos para que Floyd tenga como un record de las rutas.
+//Complejidad O(n^2)
+// matriz de los caminos para que Floyd tenga como un record de las rutas.
 void caminosMat (int v, int camino[MAX][MAX]){
     for(int i= 0; i< v; i++) {
         for(int j= 0; j<v; j++) {
@@ -191,6 +202,7 @@ void caminosMat (int v, int camino[MAX][MAX]){
     }
 }
 
+//Complejidad O(n^3)
 // Floyd modificado para guardar los caminos
 void FloydWarshall(pair<int,bool> matAdj[MAX][MAX], int v, int camino[MAX][MAX], string& outputText){
     // se le llama a la matriz de caminos que va a ir guardando los nodos intermedios que representan el camino mas corto
@@ -208,6 +220,7 @@ void FloydWarshall(pair<int,bool> matAdj[MAX][MAX], int v, int camino[MAX][MAX],
     }
 }
 
+//Complejidaad O(n^2)
 void RutasCentrales(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> &colonias, unordered_map<int, string> index2, int camino[MAX][MAX], string& outputText) {
     outputText += "-------------------\n3 - Caminos más cortos entre centrales.\n"; 
     vector<int> centrales;
@@ -228,6 +241,7 @@ void RutasCentrales(pair<int,bool> matAdj[MAX][MAX], vector<Colonia> &colonias, 
 
 
 // ---- TRAVELLING SALESMAN PROBLEM  -----
+//Complejidad O(n)
 //print de la mejor ruta del TSP con los detalles del camino 
 void printTSP(vector<int>& mejorRuta, vector<int>& nocentrales, pair<int,bool> matAdj[MAX][MAX], unordered_map<int,string> index2, int camino[MAX][MAX], int minCost, string& outputText) {
     outputText += index2[nocentrales[0]];
@@ -246,7 +260,7 @@ void printTSP(vector<int>& mejorRuta, vector<int>& nocentrales, pair<int,bool> m
     outputText += "\nLa Ruta Óptima tiene un costo total de: " + to_string(minCost) + "\n";
 }
 
-//Complejidad O(n)
+//Complejidad O(n!)
 //RUTAACTUAL Y RUTAOPTIMA SE DECLARAN EN TRAVELTIME
 void branchNBound(pair<int, bool> matAdj[MAX][MAX], const vector<int>& nocentrales, int currPos, int count, int cost, int& minCost, vector<bool>& visited, vector<int>& rutaactual, vector<int>& rutaoptima) {
    int totalCosto;
