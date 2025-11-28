@@ -128,9 +128,10 @@ double dist(Colonia &p1, Colonia &p2){
 }
 
 //Complejidad O(n * m)
-double bruteForce(vector<Colonia> conectadas, vector<Colonia> desconectadas,  int ini, int fin, vector<string> &cercanas, string& outputText){
+double bruteForce(vector<Colonia> conectadas, vector<Colonia> desconectadas,  int ini, int fin, string& outputText){
     outputText += "-------------------\n4 - Conexión de nuevas colonias.\n";
     double min_aux;
+    vector<string> cercanas(2);
     for (int i=0;i<desconectadas.size();i++){
         min_aux = MAX_INT;
         for(int j=ini; j<fin;j++){
@@ -382,8 +383,7 @@ int main(){
     RutasCentrales(matAdj, colonias, index2, camino, outputText);
 
     // distancia entre nuevas conexiones
-    vector<string> cercanas(2);
-    bruteForce(colonias, newColonias,0, colonias.size(),cercanas, outputText);
+    bruteForce(colonias, newColonias,0, colonias.size(), outputText);
 
     ofstream outputFile("checking2.txt");
     if (outputFile.is_open()) {
