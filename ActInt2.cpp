@@ -12,8 +12,6 @@
 #include <unordered_map>
 #include <cmath>
 #include <string>
-#define Edge pair<int,int> // a donde llego y su costo
-#define Graph vector<vector<Edge>>
 #define MAX 30
 #define MAX_INT INT_MAX
 using namespace std;
@@ -76,14 +74,14 @@ struct DisjointSets{ //Disjoint Sets (Union-Find)
 
 
 //Complejidad O(log n)
-vector<pair<int, pair<int, int>>> prepData4Kruskal(Graph G, pair<int, bool> matAdj[MAX][MAX]){
+vector<pair<int, pair<int, int>>> prepData4Kruskal(int n, pair<int, bool> matAdj[MAX][MAX]){
     vector<pair<int, pair<int, int>>> edges;
-    for(int i=0; i<G.size(); i++){
-        for(int j =0;j<G[i].size(); j++){
-            if(matAdj[i][G[i][j].first].second){ //si ya tiene el cableado nuevo costo 0
-                edges.push_back({0, {i, G[i][j].first}});
+    for(int i=0; i<n; i++){
+        for(int j=i+1;j<n; j++){
+            if(matAdj[i][j].second && !(matAdj[i][j].first==MAX_INT)){ //si ya tiene el cableado nuevo costo 0
+                edges.push_back({0, {i, j}});
             }else{
-                edges.push_back({G[i][j].second, {i, G[i][j].first}}); //en edges first = costo, second = conexión
+                edges.push_back({matAdj[i][j].first, {i, j}}); //en edges first = costo, second = conexión
             }
         }
     }
@@ -97,13 +95,13 @@ vector<pair<int, pair<int, int>>> prepData4Kruskal(Graph G, pair<int, bool> matA
 }
 
 //Complejidad O(n)
-void kruskalMST(Graph G, pair<int, bool> matAdj[MAX][MAX], unordered_map<int, string> index, string& outputText){
+void kruskalMST(int n, pair<int, bool> matAdj[MAX][MAX], unordered_map<int, string> index, string& outputText){
     outputText += "-------------------\n1 - Cableado óptimo de nueva conexión.\n";
-    vector<pair<int, pair<int, int>>> edges=prepData4Kruskal(G, matAdj);
+    vector<pair<int, pair<int, int>>> edges=prepData4Kruskal(n, matAdj);
     vector<pair<int, int>> selectedEdges;
     int costMSTKruskal;
 	sort(edges.begin(), edges.end());
-	DisjointSets ds(G.size());
+	DisjointSets ds(n);
 	for(auto it:edges){
 		int p1 = ds.find(it.second.first);
 		int p2 = ds.find(it.second.second);
@@ -160,7 +158,7 @@ void initMatAdj(pair<int, bool> matAdj[MAX][MAX]){
 }
 
 //Complejidad O(n)
-void leeDatos(pair<int,bool> matAdj[MAX][MAX], Graph &G, int edges,unordered_map<string, int> index){
+void leeDatos(pair<int,bool> matAdj[MAX][MAX], int edges,unordered_map<string, int> index){
     string col1, col2;
     int c1,c2;
     int cost;
@@ -169,10 +167,6 @@ void leeDatos(pair<int,bool> matAdj[MAX][MAX], Graph &G, int edges,unordered_map
         int c1 = index[col1];
         int c2 = index[col2];
         matAdj[c1][c2]= matAdj[c2][c1]=pair(cost,0);
-        Edge edge1(c2,cost);
-        G[c1].push_back(edge1);
-        Edge edge2(c1,cost);
-        G[c2].push_back(edge2);
     }
 }
 
@@ -354,10 +348,9 @@ int main(){
     }
 
     //conexiones entre colonias y su costo
-    Graph G(n);
     pair<int, bool> matAdj[MAX][MAX];
     initMatAdj(matAdj);
-    leeDatos(matAdj, G, m, index1);
+    leeDatos(matAdj, m, index1);
     
     //conexiones con cableado nuevo 
     for(int i=0;i<k;i++){
@@ -379,7 +372,7 @@ int main(){
 
     // FORMATO DE SALIDA
     //Cableo optimo con kruskal
-    kruskalMST(G,matAdj, index2,outputText);
+    kruskalMST(n,matAdj, index2,outputText);
 
     //TSP con branch and bound
     FloydWarshall(matAdj, n, camino, outputText);
@@ -402,7 +395,5 @@ int main(){
     } else {
         cout<< "No se pudo escribir en el achivo de output";
     }
-
-
     return 0;
 }
